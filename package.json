@@ -1,0 +1,51 @@
+{
+  "name": "@vainjs/any-proxy",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.12.1",
+  "description": "A chrome extension allows developers to easily modify and test static resources and API without needing to update the server.",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "vue-tsc --noEmit",
+    "preinstall": "npx only-allow pnpm",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "@codemirror/commands": "^6.8.0",
+    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/language": "^6.10.8",
+    "@codemirror/lint": "^6.8.4",
+    "@codemirror/view": "^6.36.2",
+    "@wxt-dev/i18n": "^0.2.3",
+    "@wxt-dev/module-vue": "^1.0.2",
+    "classnames": "^2.5.1",
+    "codemirror": "^6.0.1",
+    "lodash-es": "^4.17.21",
+    "tdesign-icons-vue-next": "^0.3.4",
+    "tdesign-vue-next": "^1.10.6",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
+    "wxt": "^0.19.29"
+  },
+  "devDependencies": {
+    "@rushstack/eslint-patch": "^1.10.5",
+    "@types/lodash-es": "^4.17.12",
+    "@vue/eslint-config-prettier": "^9.0.0",
+    "@vue/eslint-config-typescript": "^13.0.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-vue": "^9.32.0",
+    "prettier": "^3.4.2",
+    "sass": "^1.83.4",
+    "typescript": "^5.7.3",
+    "unplugin-auto-import": "^19.0.0",
+    "unplugin-vue-components": "^28.0.0",
+    "vue-tsc": "^2.2.0"
+  }
+}
