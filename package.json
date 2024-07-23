@@ -13,10 +13,10 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "ant-design-vue": "^4.2.3",
     "vue": "^3.4.29"
   },
   "devDependencies": {
-    "@rollup/plugin-html": "^1.0.3",
     "@rollup/pluginutils": "^5.1.0",
     "@rushstack/eslint-patch": "^1.8.0",
     "@tsconfig/node20": "^20.1.4",

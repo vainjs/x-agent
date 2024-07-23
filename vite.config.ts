@@ -6,6 +6,9 @@ import vitePluginMpa from './plugins/vite-plugin-mpa'
 // https://vitejs.dev/config/
 export default defineConfig({
   base: './',
+  server: {
+    open: '/popup.html'
+  },
   plugins: [
     vue(),
     vitePluginMpa({
