@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// import { ref } from 'vue'
 </script>
 
 <template>
-  <main>
-  </main>
+  api
 </template>
+
+<style lang="scss" module></style>
