@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { ref } from 'vue'
-
-const tab = ref('option-1')
 </script>
 
 <template>
@@ -11,7 +8,7 @@ const tab = ref('option-1')
       <RouterView />
     </main>
     <aside :class="$style.aside">
-      <v-tabs v-model="tab" color="primary" direction="vertical">
+      <v-tabs color="primary" direction="vertical">
         <v-tab min-width="auto" to="/" exact>
           <v-icon icon="mdi-language-javascript" size="x-large" />
         </v-tab>
@@ -28,7 +25,6 @@ const tab = ref('option-1')
   display: flex;
   height: 100%;
   padding: 4px 0 4px 4px;
-  gap: 4px;
 }
 
 .main {

@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { type ViewUpdate, highlightActiveLine, lineNumbers, placeholder } from '@codemirror/view'
 import { type CSSProperties, shallowRef, onMounted, onBeforeUnmount } from 'vue'
-import { type ViewUpdate, highlightActiveLine, lineNumbers } from '@codemirror/view'
 import { bracketMatching } from '@codemirror/language'
 import { minimalSetup, EditorView } from 'codemirror'
 import { json } from '@codemirror/lang-json';
+import cls from 'classnames'
 
 const props = defineProps<{
+  placeholder?: string | HTMLElement
   style?: CSSProperties
   modelValue?: string
   class?: string
@@ -36,21 +38,26 @@ const baseTheme = EditorView.theme({
 }, { dark: false })
 
 onMounted(() => {
+  const extensions = [
+    EditorView.lineWrapping,
+    highlightActiveLine(),
+    bracketMatching(),
+    lineNumbers(),
+    minimalSetup,
+    json(),
+    baseTheme,
+    EditorView.updateListener.of((v: ViewUpdate) => {
+      model.value = v.state.doc.toString()
+    }),
+  ]
+  if (props.placeholder) {
+    extensions.push(placeholder(props.placeholder))
+  }
+
   view.value = new EditorView({
     parent: container.value,
     doc: props.modelValue,
-    extensions: [
-      EditorView.lineWrapping,
-      highlightActiveLine(),
-      bracketMatching(),
-      lineNumbers(),
-      minimalSetup,
-      json(),
-      baseTheme,
-      EditorView.updateListener.of((v: ViewUpdate) => {
-        model.value = v.state.doc.toString()
-      }),
-    ],
+    extensions,
   })
 })
 
@@ -64,7 +71,7 @@ defineExpose({ name: 'VCodemirror' })
 </script>
 
 <template>
-  <div ref="container" :style="style" class="v-codemirror" />
+  <div ref="container" :style="props.style" :class="cls('v-codemirror', props.class)" />
 </template>
 
 <style lang="scss">
