@@ -1,15 +1,26 @@
 <script setup lang="ts">
+import { type ViewUpdate, highlightActiveLine, lineNumbers, placeholder as viewPlaceholder, keymap } from '@codemirror/view'
 import { type CSSProperties, shallowRef, onMounted, onBeforeUnmount } from 'vue'
-import { type ViewUpdate, highlightActiveLine, lineNumbers } from '@codemirror/view'
+import { json, jsonParseLinter } from '@codemirror/lang-json';
 import { bracketMatching } from '@codemirror/language'
+import { indentWithTab } from '@codemirror/commands'
+import { linter, lintGutter } from '@codemirror/lint'
 import { minimalSetup, EditorView } from 'codemirror'
-import { json } from '@codemirror/lang-json';
+import cls from 'classnames'
+
+const emit = defineEmits<{
+  (e: 'focus'): void;
+  (e: 'blur'): void;
+}>();
 
 const props = defineProps<{
+  showLineNumber?: boolean
   style?: CSSProperties
-  modelValue?: string
+  placeholder?: string
   class?: string
 }>()
+
+const { showLineNumber = true, placeholder, style } = props
 
 const container = shallowRef<HTMLDivElement>()
 const view = shallowRef<EditorView>()
@@ -35,22 +46,78 @@ const baseTheme = EditorView.theme({
   }
 }, { dark: false })
 
+const formatJson = (view: EditorView) => {
+  try {
+    const doc = view.state.doc.toString()
+    const formatted = JSON.stringify(JSON.parse(doc), null, 2)
+    view.dispatch({
+      changes: {
+        from: 0,
+        to: view.state.doc.length,
+        insert: formatted
+      }
+    })
+    return true
+  } catch (e) {
+    console.error('Invalid JSON')
+    return false
+  }
+}
+
+const customJsonLinter = () => {
+  return (view: EditorView) => {
+    const doc = view.state.doc.toString().trim()
+    if (!doc) {
+      return []
+    }
+    return jsonParseLinter()(view)
+  }
+}
+
 onMounted(() => {
+  const extensions = [
+    linter(customJsonLinter()),
+    EditorView.lineWrapping,
+    highlightActiveLine(),
+    bracketMatching(),
+    lintGutter(),
+    minimalSetup,
+    baseTheme,
+    json(),
+    EditorView.updateListener.of((v: ViewUpdate) => {
+      if (v.docChanged) {
+        model.value = v.state.doc.toString()
+      }
+    }),
+    EditorView.domEventHandlers({
+      blur: () => {
+        emit('blur')
+      },
+      focus: () => {
+        emit('focus')
+      }
+    }),
+    keymap.of([
+      indentWithTab,
+      {
+        key: "Mod-Shift-f",
+        run: formatJson
+      }
+    ])
+  ]
+
+  if (showLineNumber) {
+    extensions.push(lineNumbers())
+  }
+
+  if (placeholder) {
+    extensions.push(viewPlaceholder(placeholder))
+  }
+
   view.value = new EditorView({
     parent: container.value,
-    doc: props.modelValue,
-    extensions: [
-      EditorView.lineWrapping,
-      highlightActiveLine(),
-      bracketMatching(),
-      lineNumbers(),
-      minimalSetup,
-      json(),
-      baseTheme,
-      EditorView.updateListener.of((v: ViewUpdate) => {
-        model.value = v.state.doc.toString()
-      }),
-    ],
+    doc: model.value,
+    extensions,
   })
 })
 
@@ -64,7 +131,7 @@ defineExpose({ name: 'VCodemirror' })
 </script>
 
 <template>
-  <div ref="container" :style="style" class="v-codemirror" />
+  <div ref="container" :style="style" :class="cls('v-codemirror', props.class)" />
 </template>
 
 <style lang="scss">

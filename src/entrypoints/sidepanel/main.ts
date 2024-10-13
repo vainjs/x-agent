@@ -1,6 +1,6 @@
 import 'vuetify/styles'
+import './base.css'
 import '@mdi/font/css/materialdesignicons.css'
-import '../../assets/base.css'
 import { createVuetify } from 'vuetify'
 import { createApp } from 'vue'
 import router from './router'
