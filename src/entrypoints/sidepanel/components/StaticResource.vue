@@ -7,13 +7,12 @@ const json = ref('')
 watchEffect(() => {
   console.log('====================', json.value)
 })
-
 </script>
 
 <template>
   <section :class="$style.container">
     <header :class="$style.header">
-      <v-switch color="primary" hide-details />
+      <t-switch theme="primary" />
     </header>
     <Codemirror :class="$style.codemirror" />
   </section>
@@ -24,12 +23,13 @@ watchEffect(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
+  padding: 0 4px;
 }
 
 .header {
   display: flex;
   justify-content: right;
-  padding: 0 16px;
+  padding-bottom: 6px;
 }
 
 .codemirror {

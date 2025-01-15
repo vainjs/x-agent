@@ -1,5 +1,19 @@
 <script setup lang="ts">
+import { CodeIcon, InternetIcon } from 'tdesign-icons-vue-next'
 import { RouterView } from 'vue-router'
+
+const menuItems = [
+  {
+    key: '/',
+    icon: CodeIcon,
+    label: '静态资源'
+  },
+  {
+    key: '/api',
+    icon: InternetIcon,
+    label: 'API'
+  }
+]
 </script>
 
 <template>
@@ -8,36 +22,46 @@ import { RouterView } from 'vue-router'
       <RouterView />
     </main>
     <aside :class="$style.aside">
-      <v-tabs color="primary" direction="vertical">
-        <v-tooltip location="right" text="静态资源代理">
-          <template v-slot:activator="{ props }">
-            <v-tab v-bind="props" min-width="auto" to="/" exact>
-              <v-icon icon="mdi-language-javascript" size="x-large" />
-            </v-tab>
+      <t-menu
+        :default-value="menuItems[0].key"
+        :width="['200px', '50px']"
+        :class="$style.menu"
+        theme="light"
+        collapsed
+      >
+        <t-menu-item
+          v-for="item in menuItems"
+          :value="item.key"
+          :key="item.key"
+          :to="item.key"
+        >
+          <template #icon>
+            <component
+              :is="item.icon"
+              size="24px"
+            />
           </template>
-        </v-tooltip>
-
-        <v-tooltip location="right" text="API 代理">
-          <template v-slot:activator="{ props }">
-            <v-tab v-bind="props" min-width="auto" to="/api">
-              <v-icon icon="mdi-lock" size="x-large" />
-            </v-tab>
-          </template>
-        </v-tooltip>
-      </v-tabs>
+          {{ item.label }}
+        </t-menu-item>
+      </t-menu>
     </aside>
   </section>
 </template>
 
 <style lang="scss" module>
+$background: #f3f3f3;
+
 .container {
   display: flex;
   height: 100%;
   padding: 4px 0 4px 4px;
+  background: $background;
 }
 
 .main {
   flex: 1;
+  width: 0;
+  padding: 16px 0;
   border-radius: 12px;
   background: #fff;
 }
@@ -46,7 +70,10 @@ import { RouterView } from 'vue-router'
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 0;
   gap: 4px;
+
+  .menu {
+    background: $background;
+  }
 }
 </style>

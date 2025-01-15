@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import { type ViewUpdate, highlightActiveLine, lineNumbers, placeholder as viewPlaceholder, keymap } from '@codemirror/view'
+import {
+  type ViewUpdate,
+  placeholder as viewPlaceholder,
+  highlightActiveLine,
+  lineNumbers,
+  keymap
+} from '@codemirror/view'
 import { type CSSProperties, shallowRef, onMounted, onBeforeUnmount } from 'vue'
-import { json, jsonParseLinter } from '@codemirror/lang-json';
+import { json, jsonParseLinter } from '@codemirror/lang-json'
 import { bracketMatching } from '@codemirror/language'
-import { indentWithTab } from '@codemirror/commands'
-import { linter, lintGutter } from '@codemirror/lint'
 import { minimalSetup, EditorView } from 'codemirror'
+import { indentWithTab } from '@codemirror/commands'
+import { linter } from '@codemirror/lint'
 import cls from 'classnames'
 
 const emit = defineEmits<{
-  (e: 'focus'): void;
-  (e: 'blur'): void;
-}>();
+  (e: 'focus'): void
+  (e: 'blur'): void
+}>()
 
 const props = defineProps<{
   showLineNumber?: boolean
@@ -25,26 +31,28 @@ const { showLineNumber = true, placeholder, style } = props
 const container = shallowRef<HTMLDivElement>()
 const view = shallowRef<EditorView>()
 const model = defineModel<string>()
-const baseTheme = EditorView.theme({
-  "&": {
-    height: '100%'
+const baseTheme = EditorView.theme(
+  {
+    '&': {
+      height: '100%'
+    },
+    '&.cm-focused': {
+      outline: 'none'
+    },
+    '.cm-scroller': {
+      overflow: 'auto'
+    },
+    '.cm-gutters': {
+      background: 'transparent',
+      border: 'none'
+    },
+    '.cm-lineNumbers .cm-gutterElement': {
+      padding: 0,
+      textAlign: 'center'
+    }
   },
-  "&.cm-focused": {
-    outline: 'none'
-  },
-  ".cm-scroller": {
-    padding: '6px',
-    overflow: 'auto',
-  },
-  ".cm-gutters": {
-    background: 'transparent',
-    border: 'none',
-  },
-  ".cm-lineNumbers .cm-gutterElement": {
-    padding: 0,
-    textAlign: 'center'
-  }
-}, { dark: false })
+  { dark: false }
+)
 
 const formatJson = (view: EditorView) => {
   try {
@@ -80,7 +88,6 @@ onMounted(() => {
     EditorView.lineWrapping,
     highlightActiveLine(),
     bracketMatching(),
-    lintGutter(),
     minimalSetup,
     baseTheme,
     json(),
@@ -100,7 +107,7 @@ onMounted(() => {
     keymap.of([
       indentWithTab,
       {
-        key: "Mod-Shift-f",
+        key: 'Mod-Shift-f',
         run: formatJson
       }
     ])
@@ -117,7 +124,7 @@ onMounted(() => {
   view.value = new EditorView({
     parent: container.value,
     doc: model.value,
-    extensions,
+    extensions
   })
 })
 
@@ -131,7 +138,11 @@ defineExpose({ name: 'VCodemirror' })
 </script>
 
 <template>
-  <div ref="container" :style="style" :class="cls('v-codemirror', props.class)" />
+  <div
+    :class="cls('v-codemirror', props.class)"
+    ref="container"
+    :style="style"
+  />
 </template>
 
 <style lang="scss">

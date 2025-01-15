@@ -1,9 +1,8 @@
-import 'vuetify/styles'
 import './base.css'
-import '@mdi/font/css/materialdesignicons.css'
-import { createVuetify } from 'vuetify'
+import 'tdesign-vue-next/dist/reset.css'
+import 'tdesign-vue-next/es/style/index.css'
 import { createApp } from 'vue'
 import router from './router'
 import App from './App.vue'
 
-createApp(App).use(createVuetify()).use(router).mount('#app')
+createApp(App).use(router).mount('#app')

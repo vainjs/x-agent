@@ -1,102 +1,147 @@
 <script setup lang="ts">
-import { type InterceptRule, } from '@/type';
-import { ref } from 'vue';
-import { saveRules, getRules, DEFAULT_RULE, VALIDATION_RULES } from '@/utils/api-proxy';
-import Codemirror from './VuetifyCodemirror.vue'
+import { type InterceptRule } from '@/type'
+import { AddIcon, DeleteIcon } from 'tdesign-icons-vue-next'
+import { DialogPlugin } from 'tdesign-vue-next'
+import { ref } from 'vue'
+import { saveRules, getRules, DEFAULT_RULE } from '@/utils/api-proxy'
+import RuleDialog from './RuleDialog.vue'
 
-const formState = ref<InterceptRule>({ ...DEFAULT_RULE });
-const rules = ref<InterceptRule[]>([]);
-const dialog = ref(false);
-const form = ref();
+const formState = ref<InterceptRule>({ ...DEFAULT_RULE })
+const rules = ref<InterceptRule[]>([])
+const dialog = ref(false)
+const editIndex = ref(-1)
 
 onMounted(async () => {
   rules.value = await getRules()
-});
+})
 
-const closeDialog = () => {
-  dialog.value = false;
-};
+const onEdit = (index: number) => {
+  formState.value = { ...rules.value[index] }
+  editIndex.value = index
+  dialog.value = true
+}
 
-const addRule = async () => {
-  const { valid } = await form.value.validate();
-  if (!valid) return;
-  const newRule: InterceptRule = {
-    enabled: true,
-    pattern: formState.value.pattern,
-    response: {
-      data: JSON.parse(formState.value.response.data),
-      status: formState.value.response.status,
-    }
-  };
-  rules.value.push(newRule);
-  saveRules(rules.value)
-  formState.value = { ...DEFAULT_RULE };
-  closeDialog();
+const onAdd = () => {
+  formState.value = { ...DEFAULT_RULE }
+  editIndex.value = -1
+  dialog.value = true
+}
+
+const onSaveRule = (newRule: InterceptRule) => {
+  if (editIndex.value === -1) {
+    rules.value.push(newRule)
+  } else {
+    rules.value.splice(editIndex.value, 1, newRule)
+  }
 }
 
 const deleteRule = async (index: number) => {
-  const confirmed = confirm('确认删除该规则？');
-  if (confirmed) {
-    rules.value.splice(index, 1);
-  }
-};
+  const confirm = DialogPlugin.confirm({
+    header: '删除规则',
+    body: '确认删除该规则？',
+    width: '90%',
+    onConfirm: () => {
+      rules.value.splice(index, 1)
+      confirm.destroy()
+    }
+  })
+}
 
-const toggleRule = async (index: number) => {
-  rules.value[index].enabled = !rules.value[index].enabled;
-};
+const toggleRule = (index: number) => {
+  const rule = rules.value[index]
+  rules.value.splice(index, 1, { ...rule, enabled: !rule.enabled })
+}
 
-watchEffect(() => {
-  console.log('formState', toRaw(dialog.value), toRaw(formState.value))
-})
+watch(
+  rules,
+  () => {
+    saveRules(rules.value)
+  },
+  { deep: true }
+)
 </script>
 
 <template>
   <div :class="$style.container">
-    <div class="d-flex justify-end mb-4">
-      <v-btn icon="mdi-plus" color="primary" variant="tonal" density="comfortable" @click="dialog = true" />
-    </div>
-
-    <v-list>
-      <v-list-item v-for="(rule, index) in rules" :key="rule.pattern" :title="rule.pattern">
-        <template v-slot:append>
-          <v-switch v-model="rule.enabled" density="compact" hide-details @change="() => toggleRule(index)" />
-          <v-btn icon="mdi-delete" variant="text" color="error" density="compact" class="ml-2"
-            @click="deleteRule(index)" />
+    <header :class="$style.header">
+      <t-button
+        @click="onAdd"
+        theme="primary"
+        shape="circle"
+      >
+        <template #icon>
+          <AddIcon />
         </template>
-      </v-list-item>
-    </v-list>
+      </t-button>
+    </header>
 
-    <v-dialog v-model="dialog" max-width="500px">
-      <v-card>
-        <v-card-title class="d-flex justify-space-between align-center">
-          添加规则
-          <v-btn icon="mdi-close" variant="text" @click="closeDialog" />
-        </v-card-title>
+    <t-list
+      :class="$style.list"
+      stripe
+    >
+      <t-list-item
+        v-for="(rule, index) in rules"
+        :class="$style.cursor"
+        @click="onEdit(index)"
+        :key="rule.pattern"
+      >
+        <span :class="$style.ellipsis">
+          {{ rule.pattern }}
+        </span>
+        <template #action>
+          <t-space @click.stop>
+            <t-switch
+              @change="toggleRule(index)"
+              :value="rule.enabled"
+              size="small"
+            />
+            <DeleteIcon
+              @click="deleteRule(index)"
+              :class="$style.cursor"
+            />
+          </t-space>
+        </template>
+      </t-list-item>
+    </t-list>
 
-        <v-form ref="form" @submit.prevent="addRule">
-          <v-card-text>
-            <v-text-field v-model="formState.pattern" label="匹配规则（支持正则表达式）" :rules="VALIDATION_RULES.pattern" required
-              validate-on="input" clearable />
-            <v-text-field v-model.number="formState.response.status" label="状态码 (100-599)" type="number"
-              :rules="VALIDATION_RULES.status" required validate-on="input" />
-            <Codemirror v-model="formState.response.data" label="响应数据" :rules="VALIDATION_RULES.responseData" />
-          </v-card-text>
-          <v-card-actions class="d-flex justify-end">
-            <v-btn color="error" variant="tonal" flat @click="closeDialog">
-              取消
-            </v-btn>
-            <v-btn color="primary" type="submit" variant="flat" class="ml-2" flat>
-              确定
-            </v-btn>
-          </v-card-actions>
-        </v-form>
-      </v-card>
-    </v-dialog>
+    <RuleDialog
+      v-model:visible="dialog"
+      v-model="formState"
+      @save="onSaveRule"
+    />
   </div>
 </template>
 
 <style lang="scss" module>
 .container {
-  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 6px;
+}
+
+.header {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.list {
+  height: 0;
+  flex: 1;
+}
+
+.ellipsis {
+  flex: 1;
+  width: 0;
+  margin-right: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cursor {
+  cursor: pointer;
 }
 </style>
