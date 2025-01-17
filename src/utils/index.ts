@@ -4,26 +4,36 @@
 export function normalizeJSON(input?: string): string {
   if (!input) return ''
   try {
-    // 首先尝试直接解析
     return JSON.stringify(JSON.parse(input), null, 2)
   } catch {
     try {
-      // 1. 只移除关键位置的空白字符，保留值中的空格
+      // 只移除关键位置的空白字符，保留值中的空格
       let normalized = input.replace(/({|,|\[)\s+|\s+(?=}|\]|:)/g, '$1')
-
-      // 2. 处理未加引号的键
+      // 处理未加引号的键
       normalized = normalized.replace(/({|,)([a-zA-Z0-9_$]+?):/g, '$1"$2":')
-
-      // 3. 处理单引号
+      // 处理单引号
       normalized = normalized.replace(/'([^']*)'(?=\s*[,}\]])/g, '"$1"')
-
-      // 4. 处理末尾的逗号
+      // 处理末尾的逗号
       normalized = normalized.replace(/,\s*([}\]])/g, '$1')
-
-      // 5. 验证并格式化
       return JSON.stringify(JSON.parse(normalized), null, 2)
     } catch (e) {
       throw new Error('Invalid JSON-like string')
     }
   }
+}
+
+/**
+ * 压缩 JSON 字符串，移除所有空白字符
+ */
+export function compressJSON(input?: string): string {
+  if (!input) return ''
+  try {
+    return JSON.stringify(JSON.parse(input))
+  } catch {
+    throw new Error('Invalid JSON string')
+  }
+}
+
+export function formatJson(json: Record<string, any>) {
+  return json ? JSON.stringify(json, null, 2) : undefined
 }

@@ -13,6 +13,7 @@ import { minimalSetup, EditorView } from 'codemirror'
 import { indentWithTab } from '@codemirror/commands'
 import { linter } from '@codemirror/lint'
 import cls from 'classnames'
+import { normalizeJSON } from '@/utils'
 
 const emit = defineEmits<{
   (e: 'focus'): void
@@ -28,9 +29,9 @@ const props = defineProps<{
 
 const { showLineNumber = true, placeholder, style } = props
 
+const model = defineModel<string>()
 const container = shallowRef<HTMLDivElement>()
 const view = shallowRef<EditorView>()
-const model = defineModel<string>()
 const baseTheme = EditorView.theme(
   {
     '&': {
@@ -57,7 +58,7 @@ const baseTheme = EditorView.theme(
 const formatJson = (view: EditorView) => {
   try {
     const doc = view.state.doc.toString()
-    const formatted = JSON.stringify(JSON.parse(doc), null, 2)
+    const formatted = normalizeJSON(doc)
     view.dispatch({
       changes: {
         from: 0,
@@ -120,7 +121,6 @@ onMounted(() => {
   if (placeholder) {
     extensions.push(viewPlaceholder(placeholder))
   }
-
   view.value = new EditorView({
     parent: container.value,
     doc: model.value,

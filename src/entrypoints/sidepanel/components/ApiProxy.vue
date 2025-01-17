@@ -13,6 +13,7 @@ const editIndex = ref(-1)
 
 onMounted(async () => {
   rules.value = await getRules()
+  console.log(rules.value)
 })
 
 const onEdit = (index: number) => {
@@ -55,7 +56,7 @@ const toggleRule = (index: number) => {
 watch(
   rules,
   () => {
-    saveRules(rules.value)
+    saveRules(toRaw(rules.value))
   },
   { deep: true }
 )
@@ -64,6 +65,7 @@ watch(
 <template>
   <div :class="$style.container">
     <header :class="$style.header">
+      <t-switch theme="primary" />
       <t-button
         @click="onAdd"
         theme="primary"
@@ -89,7 +91,10 @@ watch(
           {{ rule.pattern }}
         </span>
         <template #action>
-          <t-space @click.stop>
+          <t-space
+            :class="$style.action"
+            @click.stop
+          >
             <t-switch
               @change="toggleRule(index)"
               :value="rule.enabled"
@@ -98,6 +103,7 @@ watch(
             <DeleteIcon
               @click="deleteRule(index)"
               :class="$style.cursor"
+              size="medium"
             />
           </t-space>
         </template>
@@ -122,7 +128,7 @@ watch(
 
 .header {
   display: flex;
-  justify-content: end;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 6px;
 }
@@ -130,15 +136,19 @@ watch(
 .list {
   height: 0;
   flex: 1;
-}
 
-.ellipsis {
-  flex: 1;
-  width: 0;
-  margin-right: 16px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  .action {
+    color: var(--td-text-color-secondary);
+  }
+
+  .ellipsis {
+    flex: 1;
+    width: 0;
+    margin-right: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .cursor {

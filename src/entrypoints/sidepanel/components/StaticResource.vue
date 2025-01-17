@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import Codemirror from '@/components/VCodemirror.vue'
+// import { SaveIcon } from 'tdesign-icons-vue-next'
 import { ref, watchEffect } from 'vue'
+import { getConfigJson, saveConfigJson, DEFAULT_CONFIG } from '@/utils/static-resource'
+import Codemirror from '@/components/VCodemirror.vue'
+import { formatJson } from '@/utils'
 
-const json = ref('')
+const configJson = ref(formatJson(DEFAULT_CONFIG))
+
+onMounted(async () => {
+  configJson.value = await getConfigJson()
+})
 
 watchEffect(() => {
-  console.log('====================', json.value)
+  saveConfigJson(configJson.value)
 })
 </script>
 
@@ -13,8 +20,15 @@ watchEffect(() => {
   <section :class="$style.container">
     <header :class="$style.header">
       <t-switch theme="primary" />
+      <!-- <SaveIcon
+        :style="{ cursor: 'pointer' }"
+        size="large"
+      /> -->
     </header>
-    <Codemirror :class="$style.codemirror" />
+    <Codemirror
+      :class="$style.codemirror"
+      v-model="configJson"
+    />
   </section>
 </template>
 
@@ -23,13 +37,16 @@ watchEffect(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 0 4px;
+  padding: 0 6px;
 }
 
 .header {
+  height: 32px;
   display: flex;
-  justify-content: right;
-  padding-bottom: 6px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  color: var(--td-text-color-secondary);
 }
 
 .codemirror {

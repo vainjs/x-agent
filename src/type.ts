@@ -1,5 +1,3 @@
-import { MESSAGE_TYPE } from './enum'
-
 export type InterceptRule = {
   pattern: string
   response: {
@@ -10,7 +8,4 @@ export type InterceptRule = {
   enabled: boolean // 是否启用
 }
 
-export type MessageData = {
-  payload: InterceptRule[]
-  type: MESSAGE_TYPE
-}
+export type ProxyConfig = { proxy?: Array<[string, string]> }
