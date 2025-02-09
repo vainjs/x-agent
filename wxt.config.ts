@@ -5,12 +5,26 @@ import { defineConfig } from 'wxt'
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
+  srcDir: 'src',
   modules: ['@wxt-dev/module-vue', '@wxt-dev/i18n/module'],
   manifest: {
-    permissions: ['storage', 'background'],
-    default_locale: 'en'
+    permissions: [
+      'declarativeNetRequestWithHostAccess',
+      'declarativeNetRequest',
+      'background',
+      'webRequest',
+      'storage'
+    ],
+    web_accessible_resources: [
+      {
+        resources: ['dynamic-response', '/dynamic-response'],
+        matches: ['<all_urls>']
+      }
+    ],
+    host_permissions: ['<all_urls>'],
+    default_locale: 'en',
+    name: 'XProxy'
   },
-  srcDir: 'src',
   vite: () => ({
     plugins: [
       AutoImport({

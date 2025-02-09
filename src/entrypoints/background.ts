@@ -1,41 +1,115 @@
-import { storage } from 'wxt/storage'
-import type { InterceptRule, MessageData } from '../type'
-// import { createResponse, defaultRules } from '../utils/api-proxy'
-import { API_STORAGE_KEY, MESSAGE_TYPE } from '../enum'
+import type { DeclarativeNetRequest } from 'wxt/browser'
+import type { InterceptRule } from '@/type'
+import { get } from '@vainjs/ore'
+import { API_STORAGE_KEY } from '@/enum'
+import { getRules } from '@/utils'
 
-export default defineBackground(() => {
-  // const interceptRules: InterceptRule[] = [...defaultRules]
-  // browser.webRequest.onBeforeRequest.addListener(
-  //   (details) => {
-  //     if (!details.url) return
-  //   },
-  //   { urls: ['<all_urls>'] }, // 这里的URL应该与manifest.json中的声明一致
-  //   ['blocking'] // 指定为阻塞模式
-  // )
-  // // 使用 fetch 监听器来处理请求
-  // browser.webRequest.onBeforeSendHeaders.addListener(
-  //   (details) => {
-  //     if (!details.url) return
-  //     for (const rule of interceptRules) {
-  //       if (rule.enabled && matchRule(details.url, rule)) {
-  //         const response = createResponse(rule)
-  //         return { response }
-  //       }
-  //     }
-  //   },
-  //   { urls: ['<all_urls>'] },
-  //   ['blocking']
-  // )
-  // browser.runtime.onMessage.addListener((message: MessageData, sender, sendResponse) => {
-  //   console.log('==========', MESSAGE_TYPE.UPDATE_INTERCEPT_RULES, message)
-  //   switch (message.type) {
-  //     case MESSAGE_TYPE.UPDATE_INTERCEPT_RULES:
-  //       storage.setItem(API_STORAGE_KEY, message.payload)
-  //       sendResponse({ success: true })
-  //       break
-  //     default:
-  //       sendResponse({ success: false })
-  //       break
-  //   }
-  // })
+export default defineBackground(async () => {
+  const rules = await getRules()
+
+  const updateRules = async (rules: InterceptRule[]) => {
+    console.log('updateRules', rules)
+    const dynamicRules: DeclarativeNetRequest.Rule[] = rules.map((rule, index) => ({
+      id: index + 1,
+      priority: 1,
+      action: {
+        type: 'redirect',
+        redirect: {
+          url: `data:application/json;charset=utf-8,${encodeURIComponent(
+            JSON.stringify(rule.response.data)
+          )}`
+        }
+      },
+      condition: {
+        urlFilter: rule.pattern,
+        resourceTypes: ['xmlhttprequest']
+      }
+    }))
+    console.log('dynamicRules', dynamicRules)
+    await browser.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: dynamicRules.map((rule) => rule.id),
+      addRules: dynamicRules
+    })
+    console.log('updateDynamicRules success')
+  }
+
+  updateRules(rules)
+
+  browser.storage.onChanged.addListener((changes, areaName) => {
+    console.log('onChanged', changes, areaName)
+    const rules = changes[API_STORAGE_KEY]
+    if (areaName === 'local' && rules) {
+      updateRules(get(rules, 'newValue'))
+    }
+  })
 })
+
+// import type { DeclarativeNetRequest } from 'wxt/browser'
+// import type { InterceptRule } from '@/type'
+// import { get } from '@vainjs/ore'
+// import { API_STORAGE_KEY } from '@/enum'
+// import { getRules } from '@/utils'
+
+// export default defineBackground(async () => {
+//   self.addEventListener('fetch', (event) => {
+//     console.log('Fetch event:', event.request.url)
+//     const url = new URL(event.request.url)
+
+//     if (url.pathname.endsWith('/dynamic-response')) {
+//       event.respondWith(
+//         new Response(
+//           JSON.stringify({
+//             intercepted: true,
+//             originalUrl: url.searchParams.get('originalUrl'),
+//             timestamp: Date.now()
+//           }),
+//           {
+//             headers: new Headers({
+//               'Content-Type': 'application/json',
+//               'Access-Control-Allow-Origin': '*',
+//               'Cache-Control': 'no-store' // 避免缓存干扰
+//             }),
+//             status: 200,
+//             statusText: 'OK'
+//           }
+//         )
+//       )
+//     }
+//   })
+
+//   const rules = await getRules()
+
+//   const updateRules = async (rules: InterceptRule[]) => {
+//     console.log('updateRules', rules)
+//     const dynamicRules: DeclarativeNetRequest.Rule[] = rules.map((rule, index) => ({
+//       id: index + 1,
+//       priority: 1,
+//       action: {
+//         type: 'redirect',
+//         redirect: {
+//           url: ''
+//         }
+//       },
+//       condition: {
+//         urlFilter: rule.pattern,
+//         resourceTypes: ['xmlhttprequest']
+//       }
+//     }))
+//     console.log('dynamicRules', dynamicRules)
+//     await browser.declarativeNetRequest.updateDynamicRules({
+//       removeRuleIds: dynamicRules.map((rule) => rule.id),
+//       addRules: dynamicRules
+//     })
+//     console.log('updateDynamicRules success')
+//   }
+
+//   updateRules(rules)
+
+//   browser.storage.onChanged.addListener((changes, areaName) => {
+//     console.log('onChanged', changes, areaName)
+//     const rules = changes[API_STORAGE_KEY]
+//     if (areaName === 'local' && rules) {
+//       updateRules(get(rules, 'newValue'))
+//     }
+//   })
+// })

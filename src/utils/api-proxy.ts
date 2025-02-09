@@ -54,10 +54,10 @@ export function createResponse(rule: InterceptRule): Response {
 }
 
 export async function saveRules(rules: InterceptRule[]) {
-  await storage.setItem(API_STORAGE_KEY, rules)
+  await storage.setItem(`local:${API_STORAGE_KEY}`, rules)
 }
 
 export async function getRules() {
-  const rules = await storage.getItem(API_STORAGE_KEY)
+  const rules = await storage.getItem(`local:${API_STORAGE_KEY}`)
   return (rules || []) as InterceptRule[]
 }

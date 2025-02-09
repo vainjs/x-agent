@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { type InterceptRule } from '@/type'
+import { VALIDATION_RULES, formatJson } from '@/utils'
 import Codemirror from '@/components/VCodemirror.vue'
-import { VALIDATION_RULES } from '@/utils/api-proxy'
-import { formatJson } from '@/utils'
 
 const emit = defineEmits<{
   save: [rule: InterceptRule]

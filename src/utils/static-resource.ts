@@ -8,14 +8,14 @@ export const DEFAULT_CONFIG: ProxyConfig = {
 }
 
 export async function getConfigJson() {
-  const config = (await storage.getItem(STATIC_STORAGE_KEY)) || DEFAULT_CONFIG
+  const config = (await storage.getItem(`local:${STATIC_STORAGE_KEY}`)) || DEFAULT_CONFIG
   return formatJson(config)
 }
 
 export async function saveConfigJson(configJson?: string) {
   try {
     const config = configJson ? JSON.parse(configJson) : DEFAULT_CONFIG
-    await storage.setItem(STATIC_STORAGE_KEY, config)
+    await storage.setItem(`local:${STATIC_STORAGE_KEY}`, config)
   } catch (e) {
     console.error(e)
   }

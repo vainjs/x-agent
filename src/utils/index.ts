@@ -1,3 +1,6 @@
+export * from './static-resource'
+export * from './api-proxy'
+
 /**
  * 将类 JSON 字符串转换为标准 JSON 字符串
  */

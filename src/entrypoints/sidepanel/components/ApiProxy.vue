@@ -3,7 +3,7 @@ import { type InterceptRule } from '@/type'
 import { AddIcon, DeleteIcon } from 'tdesign-icons-vue-next'
 import { DialogPlugin } from 'tdesign-vue-next'
 import { ref } from 'vue'
-import { saveRules, getRules, DEFAULT_RULE } from '@/utils/api-proxy'
+import { saveRules, getRules, DEFAULT_RULE } from '@/utils'
 import RuleDialog from './RuleDialog.vue'
 
 const formState = ref<InterceptRule>({ ...DEFAULT_RULE })
@@ -13,7 +13,6 @@ const editIndex = ref(-1)
 
 onMounted(async () => {
   rules.value = await getRules()
-  console.log(rules.value)
 })
 
 const onEdit = (index: number) => {

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 // import { SaveIcon } from 'tdesign-icons-vue-next'
 import { ref, watchEffect } from 'vue'
-import { getConfigJson, saveConfigJson, DEFAULT_CONFIG } from '@/utils/static-resource'
+import { getConfigJson, saveConfigJson, formatJson, DEFAULT_CONFIG } from '@/utils'
 import Codemirror from '@/components/VCodemirror.vue'
-import { formatJson } from '@/utils'
 
 const configJson = ref(formatJson(DEFAULT_CONFIG))
 
