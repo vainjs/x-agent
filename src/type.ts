@@ -8,4 +8,4 @@ export type InterceptRule = {
   enabled: boolean // 是否启用
 }
 
-export type ProxyConfig = { proxy?: Array<[string, string]> }
+export type ProxyConfig = { proxy: Array<[string, string]> }

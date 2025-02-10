@@ -1,18 +1,16 @@
 import type { ProxyConfig } from '@/type'
 import { storage } from 'wxt/storage'
 import { STATIC_STORAGE_KEY } from '@/enum'
-import { formatJson } from '@/utils'
 
 export const DEFAULT_CONFIG: ProxyConfig = {
   proxy: []
 }
 
-export async function getConfigJson() {
-  const config = (await storage.getItem(`local:${STATIC_STORAGE_KEY}`)) || DEFAULT_CONFIG
-  return formatJson(config)
+export async function getConfig() {
+  return ((await storage.getItem(`local:${STATIC_STORAGE_KEY}`)) as ProxyConfig) || DEFAULT_CONFIG
 }
 
-export async function saveConfigJson(configJson?: string) {
+export async function saveConfig(configJson?: string) {
   try {
     const config = configJson ? JSON.parse(configJson) : DEFAULT_CONFIG
     await storage.setItem(`local:${STATIC_STORAGE_KEY}`, config)
