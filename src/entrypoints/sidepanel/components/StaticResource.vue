@@ -1,30 +1,37 @@
 <script setup lang="ts">
 // import { SaveIcon } from 'tdesign-icons-vue-next'
 import { ref, watchEffect } from 'vue'
-import { getConfig, saveConfig, formatJson, DEFAULT_CONFIG } from '@/utils'
+import { getConfig, saveConfig, formatJson, DEFAULT_CONFIG, getSwitchConfig, saveSwitchConfig } from '@/utils'
 import Codemirror from '@/components/VCodemirror.vue'
 
 const configJson = ref(formatJson(DEFAULT_CONFIG))
+const switchConfig = ref(false)
 
 onMounted(() => {
   getConfig().then((config) => {
     configJson.value = formatJson(config)
+  })
+  getSwitchConfig().then((v) => {
+    switchConfig.value = v
   })
 })
 
 watchEffect(() => {
   saveConfig(configJson.value)
 })
+
+watchEffect(() => {
+  saveSwitchConfig(switchConfig.value)
+})
 </script>
 
 <template>
   <section :class="$style.container">
     <header :class="$style.header">
-      <t-switch theme="primary" />
-      <!-- <SaveIcon
-        :style="{ cursor: 'pointer' }"
-        size="large"
-      /> -->
+      <t-switch
+        v-model="switchConfig"
+        theme="primary"
+      />
     </header>
     <Codemirror
       :class="$style.codemirror"

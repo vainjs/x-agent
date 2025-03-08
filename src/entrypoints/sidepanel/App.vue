@@ -8,11 +8,11 @@ const menuItems = [
     icon: CodeIcon,
     label: '静态资源'
   },
-  {
-    key: '/api',
-    icon: InternetIcon,
-    label: 'API'
-  }
+  // {
+  //   key: '/api',
+  //   icon: InternetIcon,
+  //   label: 'API'
+  // }
 ]
 </script>
 

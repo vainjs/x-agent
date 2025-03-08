@@ -8,13 +8,7 @@ export default defineConfig({
   srcDir: 'src',
   modules: ['@wxt-dev/module-vue', '@wxt-dev/i18n/module'],
   manifest: {
-    permissions: [
-      'declarativeNetRequestWithHostAccess',
-      'declarativeNetRequest',
-      'background',
-      'webRequest',
-      'storage'
-    ],
+    permissions: ['declarativeNetRequest', 'background', 'storage'],
     web_accessible_resources: [
       {
         resources: ['dynamic-response', '/dynamic-response'],
@@ -23,7 +17,7 @@ export default defineConfig({
     ],
     host_permissions: ['<all_urls>'],
     default_locale: 'en',
-    name: 'XProxy'
+    name: 'AnyProxy'
   },
   vite: () => ({
     plugins: [

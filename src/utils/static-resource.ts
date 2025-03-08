@@ -2,7 +2,7 @@ import type { DeclarativeNetRequest } from 'wxt/browser'
 import type { ProxyConfig } from '@/type'
 import { storage } from 'wxt/storage'
 import { debounce, get, uniqueId, reduce, replace } from 'lodash-es'
-import { STATIC_STORAGE_KEY } from '@/enum'
+import { STATIC_STORAGE_KEY, STATIC_STORAGE_SWITCH_KEY } from '@/enum'
 
 export const DEFAULT_CONFIG: ProxyConfig = {
   proxy: []
@@ -46,4 +46,12 @@ export function getStaticResourceRules(config: ProxyConfig) {
     },
     [] as DeclarativeNetRequest.Rule[]
   )
+}
+
+export async function saveSwitchConfig(value: boolean) {
+  await storage.setItem(`local:${STATIC_STORAGE_SWITCH_KEY}`, value)
+}
+
+export async function getSwitchConfig() {
+  return (await storage.getItem(`local:${STATIC_STORAGE_SWITCH_KEY}`)) as boolean
 }

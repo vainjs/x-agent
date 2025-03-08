@@ -1,13 +1,16 @@
-import type { DeclarativeNetRequest } from 'wxt/browser'
-import type { ProxyConfig } from '@/type'
-import { get, map, isEmpty } from 'lodash-es'
-import { getConfig, getStaticResourceRules } from '@/utils'
-import { STATIC_STORAGE_KEY } from '@/enum'
+import { map, isEmpty } from 'lodash-es'
+import { getConfig, getStaticResourceRules, getSwitchConfig } from '@/utils'
 
 export default defineBackground(async () => {
   let removeRuleIds: number[] = []
 
-  const updateRules = async (addRules: DeclarativeNetRequest.Rule[]) => {
+  const updateRules = async () => {
+    const switchEnabled = await getSwitchConfig()
+    if (!switchEnabled) {
+      await browser.declarativeNetRequest.updateDynamicRules({ removeRuleIds })
+      return
+    }
+    const addRules = getStaticResourceRules(await getConfig())
     if (isEmpty(addRules)) return
     await browser.declarativeNetRequest.updateDynamicRules({
       removeRuleIds,
@@ -16,15 +19,11 @@ export default defineBackground(async () => {
     removeRuleIds = map(addRules, 'id')
   }
 
-  updateRules(getStaticResourceRules(await getConfig()))
+  updateRules()
 
-  //
-
-  browser.storage.onChanged.addListener(async (changes, areaName) => {
-    const staticResourceRules = changes[STATIC_STORAGE_KEY]
-    // const apiRules = changes[API_STORAGE_KEY]
+  browser.storage.onChanged.addListener(async (_, areaName) => {
     if (areaName === 'local') {
-      updateRules(getStaticResourceRules(get(staticResourceRules, 'newValue') as ProxyConfig))
+      updateRules()
     }
   })
 })
